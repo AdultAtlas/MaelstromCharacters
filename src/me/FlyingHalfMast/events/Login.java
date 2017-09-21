@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -22,12 +23,14 @@ public class Login implements Listener {
 	private Plugin pl;
 
 	HashMap<UUID, PlayerCharacter> characterList = new HashMap<UUID, PlayerCharacter>();
+	HashMap<UUID, String[][]> fileContents = new HashMap<UUID, String[][]>();
 
 	public Login(Plugin pl) {
 		this.pl = pl;
 	}
 
 	@EventHandler
+	// Loads up the player's data 
 	public void onLogin(PlayerLoginEvent e) throws FileNotFoundException {
 		// Gets the file that the character data will be loaded in from
 		File characterFile = new File(pl.getDataFolder() + "/" + e.getPlayer().getUniqueId() + ".csv");
@@ -49,7 +52,11 @@ public class Login implements Listener {
 			FileReader fr = new FileReader(characterFile);
 			BufferedReader br = new BufferedReader(fr);
 
+			// Because we need to keep track of the file's contents in order to save player data,
+			// we have a multi-dimensional string and a while counter to keep track of its place in line reading
+			String[][] fileLines = new String[2][1];
 			String currentLine;
+			int whileCount = 0;
 			
 			try {
 				/* The csv file in this case is always going to have 5 members with the final member indicating
@@ -58,6 +65,8 @@ public class Login implements Listener {
 				*/
 				 
 				while ((currentLine = br.readLine()) != null) {
+					// Adds to the buffer for saving data later
+					fileLines[whileCount][0] = currentLine;
 					
 					String[] csvArray = currentLine.split(",");
 					if (csvArray[4] == "y") {
@@ -68,20 +77,41 @@ public class Login implements Listener {
 						characterList.put(e.getPlayer().getUniqueId(), pc);
 					}
 					
+					whileCount+=1;
 				}
 				
 			} catch (IOException ioe) {
 				
 				pl.getServer().getConsoleSender()
-					.sendMessage(ChatColor.RED + "ERROR: Error reading from file in Login.java!");
+					.sendMessage(ChatColor.RED + "ERROR: Error reading from file in Login.java, check onJoin method!");
 			}
+			
+			fileContents.put(e.getPlayer().getUniqueId(), fileLines);
 		}
 
 	}
 
 	@EventHandler
+	// Saves the player's data
 	public void onQuit(PlayerQuitEvent e) {
+		File saveFile = new File(pl.getDataFolder() + "/" + e.getPlayer().getUniqueId() + ".csv");
+
+		try {
+			
+			// Creates a printwriter to write contents out to csv
+			PrintWriter pw = new PrintWriter(saveFile);
+			for(int i = 0; i < fileContents.get(e.getPlayer().getUniqueId()).length; i++) {
+				pw.write(fileContents.get(e.getPlayer().getUniqueId())[i][0]);
+			}
+			
+			
+		} catch (IOException e1) {
+			pl.getServer().getConsoleSender().sendMessage(ChatColor.RED + "ERROR: Error saving file in Login.java, check onQuit method!");
+		}
+
+		
 
 	}
 
+	
 }
