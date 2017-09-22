@@ -22,8 +22,8 @@ public class Login implements Listener {
 
 	private Plugin pl;
 
-	HashMap<UUID, PlayerCharacter> characterList = new HashMap<UUID, PlayerCharacter>();
-	HashMap<UUID, String[][]> fileContents = new HashMap<UUID, String[][]>();
+	static HashMap<UUID, PlayerCharacter> characterList = new HashMap<UUID, PlayerCharacter>();
+	static HashMap<UUID, String[][]> fileContents = new HashMap<UUID, String[][]>();
 
 	public Login(Plugin pl) {
 		this.pl = pl;
@@ -69,10 +69,10 @@ public class Login implements Listener {
 					fileLines[whileCount][0] = currentLine;
 					
 					String[] csvArray = currentLine.split(",");
-					if (csvArray[4] == "y") {
+					if (csvArray[5] == "y") {
 				
 						PlayerCharacter pc = new PlayerCharacter(csvArray[0], Integer.parseInt(csvArray[1]),
-								csvArray[2], csvArray[3]);
+								csvArray[2], csvArray[3], csvArray[4]);
 						
 						characterList.put(e.getPlayer().getUniqueId(), pc);
 					}
@@ -112,6 +112,7 @@ public class Login implements Listener {
 		
 
 	}
+	
 
 	
 }
