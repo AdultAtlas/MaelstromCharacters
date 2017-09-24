@@ -86,6 +86,19 @@ public class Chat {
 				e.getPlayer().sendMessage(ChatColor.BOLD + "You've set your race to: " + characterRace);
 				e.getPlayer().sendMessage(ChatColor.BOLD + "You've successfully created your character! Have fun!");
 				Login.characterList.get(e.getPlayer().getUniqueId()).setRace(characterRace);
+				String[][] playerData = Login.fileContents.get(e.getPlayer().getUniqueId());
+				if (playerData == null) {
+					playerData = new String[2][1];
+					playerData[0][0] = Login.characterList.get(e.getPlayer().getUniqueId()).dataInCSV();
+				} else {
+					if ((playerData[0][0].split(","))[5].equalsIgnoreCase("y")) 
+						playerData[0][0] = Login.characterList.get(e.getPlayer().getUniqueId()).dataInCSV();
+					 else 
+						playerData[1][0] = Login.characterList.get(e.getPlayer().getUniqueId()).dataInCSV();
+				}
+				
+				Login.fileContents.remove(e.getPlayer().getUniqueId());
+				Login.fileContents.put(e.getPlayer().getUniqueId(), playerData);
 			} else 
 				e.getPlayer().sendMessage(ChatColor.BOLD + "Please select a race from the list of races!");
 		}
